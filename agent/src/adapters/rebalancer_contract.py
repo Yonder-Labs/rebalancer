@@ -193,7 +193,7 @@ class RebalancerContract:
         if not success_value_b64:
             raise Exception("build_and_sign_cctp_approve_burn_tx didn't return SuccessValue")
 
-        signed_rlp = extract_signed_rlp(success_value_b64)
+        signed_rlp = extract_signed_rlp_without_prefix(success_value_b64)
                 
         return signed_rlp
 
@@ -405,7 +405,7 @@ class RebalancerContract:
         success_value_b64 = result.status.get("SuccessValue")
         if not success_value_b64:
             raise Exception("build_and_sign_aave_approve_supply_tx didn't return SuccessValue")
-        signed_rlp = extract_signed_rlp(success_value_b64)
+        signed_rlp = extract_signed_rlp_without_prefix(success_value_b64)
                 
         return signed_rlp
     
