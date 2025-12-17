@@ -83,7 +83,7 @@ impl Contract {
     }
 
     // Transaction Input Builders
-    pub fn build_cctp_approve_before_burn_tx(&self, spender: String, amount: u128) -> Vec<u8> {
+    pub fn build_cctp_approve_burn_tx(&self, spender: String, amount: u128) -> Vec<u8> {
         encoders::cctp::usdc::encode_approve(
             Address::from_str(&spender).expect("Invalid spender address"),
             U256::from(amount),
@@ -115,7 +115,7 @@ impl Contract {
         encoders::cctp::transmitter::encode_receive_message(message, attestation)
     }
 
-    pub fn build_aave_approve_before_supply_tx(&self, spender: String, amount: u128) -> Vec<u8> {
+    pub fn build_aave_approve_supply_tx(&self, spender: String, amount: u128) -> Vec<u8> {
         encoders::cctp::usdc::encode_approve(
             Address::from_str(&spender).expect("Invalid spender address"),
             U256::from(amount),
