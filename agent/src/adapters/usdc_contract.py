@@ -19,8 +19,8 @@ class USDC:
         Returns:
             int: Allowance amount in the smallest USDC unit (6 decimals).
         """
-        contract = web3_instance.eth.contract(address=usdc_address, abi=USDC_ABI)
+        contract = web3_instance.eth.contract(address=Web3.to_checksum_address(usdc_address), abi=USDC_ABI)
 
-        allowance = contract.functions.allowance(owner, spender).call()       
+        allowance = contract.functions.allowance(Web3.to_checksum_address(owner), Web3.to_checksum_address(spender)).call()       
 
         return allowance

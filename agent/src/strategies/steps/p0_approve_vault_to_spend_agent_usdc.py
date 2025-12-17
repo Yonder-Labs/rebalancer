@@ -11,7 +11,7 @@ class ApproveVaulToSpendAgentUSDC(Step):
         usdc_address = ctx.usdc_token_address_on_destination_chain
 
         # @dev this can only happen when the agent is returning funds to the source chain, in this case the source chain is the destination chain
-        allowance = USDC.get_allowance(web3_instance=ctx.web3_destination, usdc_address=usdc_address, spender=spender)
+        allowance = USDC.get_allowance(web3_instance=ctx.web3_destination, usdc_address=usdc_address, spender=spender, owner=ctx.agent_address)
         
         if allowance < ctx.max_allowance:
             print("Approving USDC for vault...")

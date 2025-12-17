@@ -11,7 +11,7 @@ class ApproveBeforeCctpBurnIfRequired(Step):
         spender = ctx.messenger_address_on_source_chain # the messenger contract is the spender
         usdc_address = ctx.usdc_token_address_on_source_chain
         amount = ctx.max_allowance
-        allowance = USDC.get_allowance(web3_instance=ctx.web3_source, usdc_address=usdc_address, spender=spender)
+        allowance = USDC.get_allowance(web3_instance=ctx.web3_source, usdc_address=usdc_address, spender=spender, owner=ctx.agent_address)
 
         if allowance < amount:
             print("Approving USDC for CCTP burn...")
