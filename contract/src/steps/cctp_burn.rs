@@ -1,6 +1,6 @@
 use crate::{tx_builders, types::*, Contract, ContractExt};
 use alloy_primitives::Address;
-use near_sdk::{near, Promise};
+use near_sdk::{near, PromiseOrValue};
 use std::str::FromStr;
 
 #[near]
@@ -9,7 +9,7 @@ impl Contract {
         &mut self,
         args: CCTPBurnArgs,
         callback_gas_tgas: u64,
-    ) -> Promise {
+    ) -> PromiseOrValue<Vec<u8>> {
         self.assert_agent_is_calling();
         let cfg = self.get_chain_config_from_step_and_current_session(Step::CCTPBurn);
 

@@ -6,7 +6,7 @@ use crate::{
 use near_sdk::{
     env, near,
     store::{IterableMap, IterableSet, LookupMap},
-    AccountId, Gas, PanicOnDefault, Promise,
+    AccountId, Gas, PanicOnDefault, PromiseOrValue,
 };
 use omni_transaction::evm::EVMTransaction;
 
@@ -69,13 +69,12 @@ impl Contract {
         contract
     }
 
-    // TODO: Integrate this
     pub(crate) fn trigger_signature(
         &mut self,
         step: Step,
         tx: EVMTransaction,
         callback_gas_tgas: u64,
-    ) -> Promise {
+    ) -> PromiseOrValue<Vec<u8>> {
         self.assert_step_is_next(step);
 
         let nonce = self.get_active_session().nonce;
@@ -84,21 +83,21 @@ impl Contract {
 
         if let Some(prev) = self.payload_hashes_by_nonce_and_type.get(&key) {
             if *prev == payload_hash {
-                env::panic_str("Signature already cached for this step");
-                // TODO: Fix this to return the existing signature
-                // let hashed_signature = self
-                //     .signatures_by_nonce_and_type
-                //     .get(&key)
-                //     .expect("Signature must be present if payload hash matches");
+                let hashed_signature = self
+                    .signatures_by_nonce_and_type
+                    .get(&key)
+                    .expect("Signature must be present if payload hash matches");
 
-                // return PromiseOrValue::Value(hashed_signature.clone());
+                return PromiseOrValue::Value(hashed_signature.clone());
             }
         }
 
-        ecdsa::get_sig(payload_hash, PATH.to_string(), KEY_VERSION).then(
-            this_contract::ext(env::current_account_id())
-                .with_static_gas(Gas::from_tgas(callback_gas_tgas))
-                .sign_callback(nonce, step as u8, tx),
+        PromiseOrValue::Promise(
+            ecdsa::get_sig(payload_hash, PATH.to_string(), KEY_VERSION).then(
+                this_contract::ext(env::current_account_id())
+                    .with_static_gas(Gas::from_tgas(callback_gas_tgas))
+                    .sign_callback(nonce, step as u8, tx),
+            ),
         )
     }
 }
