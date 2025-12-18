@@ -174,19 +174,22 @@ impl Contract {
         }
     }
 
-    pub fn get_active_session_info(&self) -> Option<(u64, Flow, Option<Step>)> {
-        if let Some(session) = &self.active_session {
-            let mut pending = None;
-            for &st in session.flow.sequence() {
-                if !self.has_signature(st) {
-                    pending = Some(st);
-                    break;
-                }
+    pub fn get_active_session_info(&self) -> Option<(u64, Flow, Option<Step>, Option<Step>)> {
+        let session = self.active_session.as_ref()?;
+
+        let mut previous: Option<Step> = None;
+        let mut pending: Option<Step> = None;
+
+        for &st in session.flow.sequence() {
+            if self.has_signature(st) {
+                previous = Some(st);
+            } else {
+                pending = Some(st);
+                break;
             }
-            Some((session.nonce, session.flow.clone(), pending))
-        } else {
-            None
         }
+
+        Some((session.nonce, session.flow.clone(), previous, pending))
     }
 
     pub fn get_active_session(&self) -> &ActiveSession {
