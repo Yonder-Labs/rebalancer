@@ -3,7 +3,7 @@ import base64
 from engine_types import Flow
 from ..common import _RebalancerBase, TGAS
 
-class StartBalance(_RebalancerBase):
+class StartRebalance(_RebalancerBase):
      async def start_rebalance(self, flow: Flow, source_chain: int, destination_chain: int, expected_amount: int) -> int:        
         args = {
             "flow": flow.name,
