@@ -174,6 +174,7 @@ impl Contract {
         }
     }
 
+    // Returns (nonce, flow, previous_step, pending_step)
     pub fn get_active_session_info(&self) -> Option<(u64, Flow, Option<Step>, Option<Step>)> {
         let session = self.active_session.as_ref()?;
 
@@ -263,5 +264,3 @@ impl Contract {
         self.active_session.as_ref().map(|s| s.nonce)
     }
 }
-
-// TODO: remove get_pending_step or get_previous_step since they are equal
