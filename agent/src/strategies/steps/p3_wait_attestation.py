@@ -2,9 +2,10 @@ import time
 from near_omni_client.adapters.cctp.attestation_service import AttestationService
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 class WaitAttestation(Step):
-    NAME = "WaitAttestation"
+    NAME = StepName.WaitAttestation
 
     async def run(self, ctx: StrategyContext):
         attestation_service = AttestationService(ctx.from_network_id)

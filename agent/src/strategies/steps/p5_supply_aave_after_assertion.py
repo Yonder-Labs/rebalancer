@@ -2,9 +2,10 @@ import time
 from helpers import Assert
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 class SupplyAaveAfterAssertion(Step):
-    NAME = "SupplyAaveAfterAssertion"
+    NAME = StepName.SupplyAaveAfterAssertion
 
     async def run(self, ctx: StrategyContext) -> None:
         Assert.atoken_agent_balance(

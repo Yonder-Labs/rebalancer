@@ -1,9 +1,10 @@
 from helpers import Assert
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 class WithdrawFromAaveAfterAssertion(Step):
-    NAME = "WithdrawFromAaveAfterAssertion"
+    NAME = StepName.WithdrawFromAaveAfterAssertion
 
     async def run(self, ctx: StrategyContext) -> None:
         # Check USDC balance after withdrawing from Aave + balance before rebalance

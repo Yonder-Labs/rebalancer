@@ -3,9 +3,10 @@ from helpers import broadcast
 from engine_types import TxType
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
-class CttpMint(Step):
-    NAME = "CttpMint"
+class CctpMint(Step):
+    NAME = StepName.CctpMint
     
     PAYLOAD_TYPE: TxType = TxType.CCTPMint
     
