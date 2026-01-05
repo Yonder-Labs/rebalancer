@@ -46,10 +46,12 @@ class RebalancerContractViews(_RebalancerBase):
         return parse_activity_log(activity_log_raw)
     
     async def get_signed_payload(self, payload_type: TxType) -> bytes | None:
+        print(f"Fetching signed payload for type: {payload_type.name} ({payload_type.value})")
+        print(f"payload_type as u8: {payload_type.as_u8}    ")
         response = await self.near_client.call_contract(
             contract_id=self.near_contract_id,
             method="get_signed_payload",
-            args={"step": payload_type}
+            args={"step": payload_type.value}
         )
         
         print(f"get_signed_payload response: {response}")

@@ -10,3 +10,16 @@ class TxType(Enum):
     RebalancerUpdateCrossChainBalance = "RebalancerUpdateCrossChainBalance"
     RebalancerDeposit                 = "RebalancerDeposit"
     RebalancerSignCrossChainBalance   = "RebalancerSignCrossChainBalance"
+
+    @property
+    def as_u8(self) -> int:
+        return {
+            TxType.AaveSupply: 0,
+            TxType.AaveWithdraw: 1,
+            TxType.CCTPBurn: 2,
+            TxType.CCTPMint: 3,
+            TxType.RebalancerWithdrawToAllocate: 4,
+            TxType.RebalancerUpdateCrossChainBalance: 5,
+            TxType.RebalancerDeposit: 6,
+            TxType.RebalancerSignCrossChainBalance: 7,
+        }[self]
