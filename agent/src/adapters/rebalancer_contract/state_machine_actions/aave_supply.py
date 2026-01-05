@@ -31,7 +31,7 @@ class AaveSupply(_RebalancerBase):
         destination_chain_as_network = from_chain_id_to_network(to_chain_id)
         input_payload = await self.build_aave_supply_tx(asset, amount, on_behalf_of, referral_code)
         gas_limit = self.gas_estimator.estimate_gas_limit(destination_chain_as_network, self.agent_address, to, input_payload)
-        print(f"Estimated gas limit for supply aave transaction: {gas_limit}")
+        print(f"⏳ Estimated gas limit for supply aave transaction: {gas_limit}")
 
         args = {
             "args": {

@@ -32,7 +32,7 @@ class CctpMint(_RebalancerBase):
         destination_chain_as_network = from_chain_id_to_network(to_chain_id)
         input_payload = await self.build_cctp_mint_tx(message, attestation)
         gas_limit = self.gas_estimator.estimate_gas_limit(destination_chain_as_network, self.agent_address, to, input_payload)
-        print(f"Estimated gas limit: {gas_limit}")
+        print(f"⏳ Estimated gas limit: {gas_limit}")
        
         args = {
             "args": {

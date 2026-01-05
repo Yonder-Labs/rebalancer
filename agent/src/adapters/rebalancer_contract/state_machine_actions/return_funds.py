@@ -29,7 +29,7 @@ class ReturnFunds(_RebalancerBase):
         chain_as_network = from_chain_id_to_network(to_chain_id)
         input_payload = await self.build_return_funds_tx(amount=amount, cross_chain_a_token_balance=cross_chain_a_token_balance)
         gas_limit = self.gas_estimator.estimate_gas_limit(chain_as_network, self.agent_address, to, input_payload)
-        print(f"Estimated gas limit: {gas_limit}")
+        print(f"⏳ Estimated gas limit: {gas_limit}")
         
         args = {
             "args": {

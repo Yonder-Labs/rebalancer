@@ -30,7 +30,7 @@ class AaveWithdraw(_RebalancerBase):
         chain_network = from_chain_id_to_network(chain_id)
         input_payload = await self.build_aave_withdraw_tx(asset, amount, on_behalf_of)
         gas_limit = self.gas_estimator.estimate_gas_limit(chain_network, self.agent_address, to, input_payload)
-        print(f"Estimated gas limit for withdraw aave transaction: {gas_limit}")
+        print(f"⏳ Estimated gas limit for withdraw aave transaction: {gas_limit}")
 
         args = {
             "args": {

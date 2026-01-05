@@ -37,7 +37,7 @@ class CctpBurn(_RebalancerBase):
         destination_domain = int(from_chain_id_to_network(to_chain_id).domain)
         input_payload = await self.build_cctp_burn_tx(destination_domain=destination_domain, amount=amount, max_fee=max_fee, burn_token=burn_token)
         gas_limit = self.gas_estimator.estimate_gas_limit(source_chain_as_network, self.agent_address, to, input_payload)
-        print(f"Estimated gas limit for burn transaction: {gas_limit}")
+        print(f"⏳ Estimated gas limit for burn transaction: {gas_limit}")
 
         args = {
             "args": {
