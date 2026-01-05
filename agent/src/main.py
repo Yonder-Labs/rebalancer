@@ -30,6 +30,29 @@ async def main():
     # Configure Strategies
     StrategyManager.configure(rebalancer_contract=context.rebalancer_contract, evm_factory_provider = context.evm_factory_provider, vault_address=vault_address, config=config, remote_config=context.remote_configs, agent_address=agent_evm_address, max_allowance=max_allowance)
 
+    existing_session = await context.rebalancer_contract.get_active_session_info() #  returns [nonce, flow, previous_step, pending_step]
+
+    print("Existing session info:", existing_session)
+
+    if existing_session:
+        print("Resumed existing rebalance session.")
+        flow = existing_session["flow"]
+        restart_from = existing_session["previous_step"]
+
+        activity_log = await context.rebalancer_contract.get_activity_log()
+        print("Activity log for existing session:", activity_log)
+        from_chain_id = activity_log["source_chain"]
+        to_chain_id = activity_log["destination_chain"]
+        amount = activity_log["amount"]
+        
+        print(f"Resuming from flow: {flow}, from_chain_id: {from_chain_id}, to_chain_id: {to_chain_id}, amount: {amount}, restart_from: {restart_from}")
+        
+        await StrategyManager.get_strategy(flow).execute(from_chain_id=from_chain_id, to_chain_id=to_chain_id, amount=amount, flow=flow, restart_from=restart_from)
+
+        print("✅ Rebalance operations computed successfully.")
+
+        return
+
     current_allocations, total_assets_under_management = await get_allocations(context)
     
     extra_data_for_optimization = await get_extra_data_for_optimization(
