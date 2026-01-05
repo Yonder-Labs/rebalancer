@@ -24,6 +24,6 @@ class ApproveBeforeCctpBurnIfRequired(Step):
 
             broadcast(ctx.web3_source, payload)
 
-            print(f"Approved {amount} of token {usdc_address} to spender {spender} on chainId={ctx.from_chain_id}")
+            print(f"✅ Approved {amount} of token {usdc_address} to spender {spender} on chainId={ctx.from_chain_id}")
         else:
             print("✅ USDC already approved for CCTP burn; no action needed.")

@@ -37,4 +37,4 @@ class WithdrawFromRebalancer(Step):
         
         broadcast(ctx.web3_source, payload)
 
-        print(f"Withdrew {ctx.amount} USDC from rebalancer on chain {ctx.from_chain_id}.")
+        print(f"✅ Withdrew {ctx.amount} USDC from rebalancer on chain {ctx.from_chain_id}.")

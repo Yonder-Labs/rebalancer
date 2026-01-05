@@ -9,6 +9,7 @@ class Step(ABC):
     PAYLOAD_TYPE: TxType
     CAN_BE_RESTARTED: bool = False
     MODIFIES_CHAIN: bool = False
+    SHOULD_BE_RETRIED: bool = True
     @abstractmethod
     async def run(self, ctx: StrategyContext) -> None:
         ...

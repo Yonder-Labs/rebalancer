@@ -19,10 +19,12 @@ from .steps.p6_complete_rebalance import CompleteRebalance
 
 class RebalancerToAave(Strategy):
     NAME = "Rebalancer→Aave"
-    STEPS = [
+    COMMON_STEPS=[
         ApproveBeforeCctpBurnIfRequired, # @dev we execute the allowances check before all
         ApproveAaveUSDCBeforeSupplyIfRequired, # @dev we execute the allowances check before all
         GetUSDCBalanceBeforeRebalance,
+    ]
+    STEPS = [
         StartRebalance,
         WithdrawFromRebalancer,
         WithdrawFromRebalancerAfterAssertion,

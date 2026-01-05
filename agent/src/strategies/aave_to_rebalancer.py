@@ -3,7 +3,7 @@ from .strategy import Strategy
 from .steps.p0_start_rebalance import StartRebalance
 from .steps.p0_get_usdc_agent_balance_before_rebalance import GetUSDCBalanceBeforeRebalance
 from .steps.p0_approve_before_cctp_burn import ApproveBeforeCctpBurnIfRequired
-from .steps.p0_approve_vault_to_spend_agent_usdc import ApproveVaulToSpendAgentUSDC
+from .steps.p0_approve_vault_to_spend_agent_usdc import ApproveVaultToSpendAgentUSDCIfRequired
 
 from .steps.p2_compute_cctp_fees import ComputeCctpFees
 from .steps.p2_cctp_burn import CctpBurn
@@ -20,10 +20,12 @@ from .steps.p9_get_usdc_balance_before_deposit_to_rebalancer import GetUSDCBalan
 
 class AaveToRebalancer(Strategy):
     NAME = "Aave→Rebalancer"
-    STEPS = [
+    COMMON_STEPS=[
         ApproveBeforeCctpBurnIfRequired, # @dev we execute the allowances check before all
-        ApproveVaulToSpendAgentUSDC, # @dev we execute the allowances check before all
+        ApproveVaultToSpendAgentUSDCIfRequired, # @dev we execute the allowances check before all
         GetUSDCBalanceBeforeRebalance,
+    ]
+    STEPS = [
         StartRebalance,
         WithdrawFromAave,
         WithdrawFromAaveAfterAssertion,

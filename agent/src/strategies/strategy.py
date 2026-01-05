@@ -11,6 +11,7 @@ from .steps import retry_async_step
 class Strategy:
     NAME = "BaseStrategy"
     STEPS: list[type] = []
+    COMMON_STEPS: list[type] = []
 
     def __init__(self, *, rebalancer_contract: RebalancerContract, evm_factory_provider: AlchemyFactoryProvider, vault_address: str, config: Config, remote_config: Dict[str, dict], agent_address: str, max_allowance: int):
         self.rebalancer_contract = rebalancer_contract
@@ -21,17 +22,18 @@ class Strategy:
         self.agent_address = agent_address
         self.max_allowance = max_allowance
 
-    async def execute(self, *, from_chain_id: int, to_chain_id: int, amount: int, flow: Flow, restart_from: str | None = None):
+    async def execute(self, *, from_chain_id: int, to_chain_id: int, amount: int, flow: Flow, restart_from: str | None = None, usdc_agent_balance_before_rebalance: Optional[int] = None):
         ctx = self._make_context(
             from_chain_id=from_chain_id,
             to_chain_id=to_chain_id,
             amount=amount,
             flow=flow,
-            restart_from=restart_from
+            restart_from=restart_from,
+            usdc_agent_balance_before_rebalance=usdc_agent_balance_before_rebalance
         )
         await self._run_phases(ctx, restart_from)
 
-    def _make_context(self, *, from_chain_id: int, to_chain_id: int, flow: Flow, amount: int, restart_from: Optional[str] = None) -> StrategyContext:
+    def _make_context(self, *, from_chain_id: int, to_chain_id: int, flow: Flow, amount: int, restart_from: Optional[str] = None, usdc_agent_balance_before_rebalance: Optional[int] = None) -> StrategyContext:
         print(f"🟩 Flow {self.NAME} | from={from_chain_id} to={to_chain_id} amount={amount}")
         return StrategyContext(
             from_chain_id=from_chain_id,
@@ -46,19 +48,33 @@ class Strategy:
             flow=flow,
             max_allowance=self.max_allowance,
             restart_from=restart_from,
-            is_restart=restart_from is not None
+            is_restart=restart_from is not None,
+            usdc_agent_balance_before_rebalance=usdc_agent_balance_before_rebalance
         )
 
     async def _run_phases(self, ctx: StrategyContext, restart_from: Optional[str] = None):
         start_index = 0
 
+        # find the step to restart from, if applicable
         if restart_from:
             for i, step_cls in enumerate(self.STEPS):
                 if step_cls.CAN_BE_RESTARTED and step_cls.PAYLOAD_TYPE == restart_from:
                     start_index = i
                     break
 
+        # find common steps to run before main steps
+        for step_cls in self.COMMON_STEPS:
+            step = step_cls()
+            print(f"🌈 Phase: {step.NAME}")
+            if step.SHOULD_BE_RETRIED:
+                await retry_async_step(lambda: step.run(ctx))
+            else:
+                await step.run(ctx)
+                
         for step_cls in self.STEPS[start_index:]:
             step = step_cls()
             print(f"🌈 Phase: {step.NAME}")
-            await retry_async_step(lambda: step.run(ctx))
+            if step.SHOULD_BE_RETRIED:
+                await retry_async_step(lambda: step.run(ctx))
+            else:
+                await step.run(ctx)

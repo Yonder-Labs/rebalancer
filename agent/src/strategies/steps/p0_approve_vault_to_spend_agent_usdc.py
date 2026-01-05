@@ -3,7 +3,7 @@ from adapters import USDC
 from ..strategy_context import StrategyContext
 from .step import Step
 
-class ApproveVaulToSpendAgentUSDC(Step):
+class ApproveVaultToSpendAgentUSDCIfRequired(Step):
     NAME = "ApproveVaulToSpendAgentUSDC"
 
     async def run(self, ctx: StrategyContext) -> None:
