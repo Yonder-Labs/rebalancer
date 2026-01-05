@@ -3,9 +3,10 @@ from engine_types import TxType
 from web3.exceptions import TransactionNotFound
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 class WithdrawFromRebalancer(Step):
-    NAME = "WithdrawFromRebalancer"
+    NAME = StepName.WithdrawFromRebalancer
     
     PAYLOAD_TYPE: TxType = TxType.RebalancerWithdrawToAllocate
     
@@ -13,20 +14,21 @@ class WithdrawFromRebalancer(Step):
 
     async def run(self, ctx: StrategyContext) -> None:
         print(f"payload type: {self.PAYLOAD_TYPE.value}")
+
         if ctx.is_restart:
             payload = await ctx.rebalancer_contract.get_signed_payload(self.PAYLOAD_TYPE)
 
-        if payload:
-            print("Found existing signed payload for rebalancer withdraw.")
-            signed_rlp = payload
-            tx_hash = ctx.web3_source.keccak(signed_rlp)
+            if payload:
+                print("Found existing signed payload for rebalancer withdraw.")
+                signed_rlp = payload
+                tx_hash = ctx.web3_source.keccak(signed_rlp)
 
-            try:
-                ctx.web3_source.eth.get_transaction(tx_hash)
-                return
-            except TransactionNotFound:
-                broadcast(ctx.web3_source, signed_rlp)
-                return
+                try:
+                    ctx.web3_source.eth.get_transaction(tx_hash)
+                    return
+                except TransactionNotFound:
+                    broadcast(ctx.web3_source, signed_rlp)
+                    return
         
         print("No existing signed payload found for rebalancer withdraw.")
         # if no existing signed payload, build and sign a new one

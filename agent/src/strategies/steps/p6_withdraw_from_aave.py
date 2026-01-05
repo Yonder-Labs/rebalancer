@@ -18,18 +18,18 @@ class WithdrawFromAave(Step):
         if ctx.is_restart:
             payload = await ctx.rebalancer_contract.get_signed_payload(self.PAYLOAD_TYPE)
         
-        if payload:
-            print("Found existing signed payload for AaveWithdraw.")
-            signed_rlp = payload
-            tx_hash = ctx.web3_source.keccak(signed_rlp)
-            # Check if the transaction is already mined
-            try:
-                ctx.web3_source.eth.get_transaction(tx_hash)
-                return
-            except Exception:
-                # If not found, broadcast the signed payload
-                broadcast(ctx.web3_source, signed_rlp)
-                return
+            if payload:
+                print("Found existing signed payload for AaveWithdraw.")
+                signed_rlp = payload
+                tx_hash = ctx.web3_source.keccak(signed_rlp)
+                # Check if the transaction is already mined
+                try:
+                    ctx.web3_source.eth.get_transaction(tx_hash)
+                    return
+                except Exception:
+                    # If not found, broadcast the signed payload
+                    broadcast(ctx.web3_source, signed_rlp)
+                    return
 
         print("No existing signed payload for AaveWithdraw found")
 
