@@ -13,7 +13,7 @@ class WaitAttestation(Step):
             transaction_hash=ctx.burn_tx_hash
         )
 
-        print("Attestation retrieved successfully!")
+        print("✅ Attestation retrieved successfully!")
         
         ctx.attestation = attestation
 
