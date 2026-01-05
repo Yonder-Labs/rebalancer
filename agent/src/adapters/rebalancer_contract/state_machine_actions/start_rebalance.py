@@ -5,6 +5,7 @@ from ..common import _RebalancerBase, TGAS
 
 class StartRebalance(_RebalancerBase):
      async def start_rebalance(self, flow: Flow, source_chain: int, destination_chain: int, expected_amount: int) -> int:        
+        print(f"🚀 Starting rebalance... FLOW={flow.name}, source_chain={source_chain}, destination_chain={destination_chain}, expected_amount={expected_amount}")
         args = {
             "flow": flow.name,
             "source_chain": source_chain,
