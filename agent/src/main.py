@@ -32,7 +32,7 @@ async def main():
 
     existing_session = await context.rebalancer_contract.get_active_session_info() #  returns [nonce, flow, previous_step, pending_step]
 
-    print("Existing session info:", existing_session)
+    print("💡Existing session info:", existing_session)
 
     if existing_session:
         print("Resumed existing rebalance session.")
@@ -40,7 +40,6 @@ async def main():
         restart_from = existing_session["previous_step"]
 
         activity_log = await context.rebalancer_contract.get_activity_log()
-        print("Activity log for existing session:", activity_log)
         from_chain_id = activity_log["source_chain"]
         to_chain_id = activity_log["destination_chain"]
         amount = activity_log["amount"]
