@@ -13,5 +13,6 @@ pub struct ActivityLog {
     pub timestamp: u64,
     pub nonce: u64,
     pub amount: u128,
+    pub usdc_agent_balance_before: u128,
     pub transactions: Vec<Vec<u8>>,
 }

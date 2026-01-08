@@ -10,6 +10,7 @@ from near_omni_client.networks import Network
 from near_omni_client.chain_signatures.utils import get_evm_address
 from near_omni_client.chain_signatures.kdf import Kdf
 
+
 def parse_chain_config(response: Any) -> dict:
     """
     Extracts and decodes the `result` from a NEAR contract call response.
@@ -203,6 +204,49 @@ def parse_supported_chains(response: Any) -> list[int]:
     except Exception as e:
         raise ValueError(f"Failed to parse supported chains: {e}")
 
+def parse_activity_log(response: Any) -> Dict:
+    """
+    Parse get_activity_log response into a Python dict.
+
+    Rust return:
+      ActivityLog
+
+    JSON example:
+      {
+        activity_type: str,
+        source_chain: int,
+        destination_chain: int,
+        timestamp: int,
+        nonce: int,
+        amount: "u128-as-string",
+        usdc_agent_balance_before: "u128-as-string",
+        transactions: List[List[int]]
+      }
+    """
+    if not hasattr(response, "result") or not isinstance(response.result, list):
+        raise ValueError("Invalid response: missing .result as list[int]")
+
+    try:
+        raw = bytes(response.result).decode("utf-8")
+        parsed = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f"Failed to decode activity log: {e}")
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Invalid activity log format")
+
+    return {
+        "activity_type": parsed["activity_type"],
+        "source_chain": int(parsed["source_chain"]),
+        "destination_chain": int(parsed["destination_chain"]),
+        "timestamp": int(parsed["timestamp"]),
+        "nonce": int(parsed["nonce"]),
+        "usdc_agent_balance_before": int(parsed["usdc_agent_balance_before"]),  # u128 string → int
+        "amount": int(parsed["amount"]),  # u128 string → int
+        "transactions": [
+            bytes(tx) for tx in parsed.get("transactions", [])
+        ],
+    }
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

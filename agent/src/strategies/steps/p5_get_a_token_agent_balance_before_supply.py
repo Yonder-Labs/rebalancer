@@ -2,10 +2,11 @@ from adapters import LendingPool
 from helpers import BalanceHelper
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 
 class GetATokenBalanceBeforeSupply(Step):
-    NAME = "GetATokenBalanceBeforeSupply"
+    NAME = StepName.GetATokenBalanceBeforeSupply
 
     async def run(self, ctx: StrategyContext) -> None:
         print("Getting AToken balance before supply...")

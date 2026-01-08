@@ -18,6 +18,12 @@ impl Contract {
         self.supported_chains.clone()
     }
 
+    pub fn get_chain_config(&self, destination_chain: &ChainId) -> &Config {
+        self.config
+            .get(destination_chain)
+            .expect("Chain not configured")
+    }
+
     pub fn get_all_configs(&self) -> Vec<(ChainId, Config)> {
         self.supported_chains
             .iter()
@@ -55,35 +61,13 @@ impl Contract {
         logs
     }
 
-    pub fn get_chain_config(&self, destination_chain: &ChainId) -> &Config {
-        self.config
-            .get(destination_chain)
-            .expect("Chain not configured")
-    }
-
-    pub fn get_active_session(&self) -> &ActiveSession {
-        self.active_session.as_ref().expect("No active session")
-    }
-
-    pub fn get_signed_transactions(&self, nonce: u64) -> Vec<Vec<u8>> {
-        self.logs
-            .get(&nonce)
-            .map(|log| log.transactions.clone())
-            .unwrap_or_default()
-    }
-
-    pub fn get_signature(&self, nonce: u64, tx_type: u8) -> Option<Vec<u8>> {
-        let cache_key = CacheKey { nonce, tx_type };
-        self.signatures_by_nonce_and_type.get(&cache_key).cloned()
-    }
-
     pub fn get_activity_log(&self) -> ActivityLog {
         let nonce = self.get_active_session().nonce;
         self.logs.get(&nonce).expect("Log not found").clone()
     }
 
     // Transaction Input Builders
-    pub fn build_cctp_approve_before_burn_tx(&self, spender: String, amount: u128) -> Vec<u8> {
+    pub fn build_cctp_approve_burn_tx(&self, spender: String, amount: u128) -> Vec<u8> {
         encoders::cctp::usdc::encode_approve(
             Address::from_str(&spender).expect("Invalid spender address"),
             U256::from(amount),
@@ -115,7 +99,7 @@ impl Contract {
         encoders::cctp::transmitter::encode_receive_message(message, attestation)
     }
 
-    pub fn build_aave_approve_before_supply_tx(&self, spender: String, amount: u128) -> Vec<u8> {
+    pub fn build_aave_approve_supply_tx(&self, spender: String, amount: u128) -> Vec<u8> {
         encoders::cctp::usdc::encode_approve(
             Address::from_str(&spender).expect("Invalid spender address"),
             U256::from(amount),
@@ -176,6 +160,7 @@ impl Contract {
         tx_builders::build_approve_vault_to_manage_agents_usdc_tx(spender)
     }
 
+    // State Machine + Caching Views
     pub fn get_pending_step(&self) -> Option<Step> {
         if let Some(session) = &self.active_session {
             for &st in session.flow.sequence() {
@@ -189,18 +174,93 @@ impl Contract {
         }
     }
 
-    pub fn get_active_session_info(&self) -> Option<(u64, Flow, Option<Step>)> {
-        if let Some(session) = &self.active_session {
-            let mut pending = None;
-            for &st in session.flow.sequence() {
-                if !self.has_signature(st) {
-                    pending = Some(st);
-                    break;
-                }
+    // Returns (nonce, flow, previous_step, pending_step)
+    pub fn get_active_session_info(&self) -> Option<(u64, Flow, Option<Step>, Option<Step>)> {
+        let session = self.active_session.as_ref()?;
+
+        let mut previous: Option<Step> = None;
+        let mut pending: Option<Step> = None;
+
+        for &st in session.flow.sequence() {
+            if self.has_signature(st) {
+                previous = Some(st);
+            } else {
+                pending = Some(st);
+                break;
             }
-            Some((session.nonce, session.flow.clone(), pending))
-        } else {
-            None
         }
+
+        Some((session.nonce, session.flow.clone(), previous, pending))
+    }
+
+    pub fn get_active_session(&self) -> &ActiveSession {
+        self.active_session.as_ref().expect("No active session")
+    }
+
+    pub fn get_signed_transactions(&self, nonce: u64) -> Vec<Vec<u8>> {
+        self.logs
+            .get(&nonce)
+            .map(|log| log.transactions.clone())
+            .unwrap_or_default()
+    }
+
+    pub fn get_signature(&self, nonce: u64, tx_type: u8) -> Option<Vec<u8>> {
+        let cache_key = CacheKey { nonce, tx_type };
+        self.signatures_by_nonce_and_type.get(&cache_key).cloned()
+    }
+
+    /// Returns the first step in the flow that is NOT signed yet.
+    /// None => flow finished or no active session.
+    pub fn get_next_step(&self) -> Option<Step> {
+        let session = self.active_session.as_ref()?;
+        for &st in session.flow.sequence() {
+            if !self.has_signature(st) {
+                return Some(st);
+            }
+        }
+        None
+    }
+
+    /// Returns the last CONTIGUOUS signed step in the flow.
+    /// None => no step signed yet or no active session.
+    pub fn get_previous_step(&self) -> Option<Step> {
+        let session = self.active_session.as_ref()?;
+        let mut prev: Option<Step> = None;
+
+        for &st in session.flow.sequence() {
+            if self.has_signature(st) {
+                prev = Some(st);
+            } else {
+                break;
+            }
+        }
+        prev
+    }
+
+    /// Returns the signed payload for a step: (step_u8 || signed_tx_bytes)
+    /// None if no session or no signature.
+    pub fn get_signed_payload(&self, step: Step) -> Option<Vec<u8>> {
+        let session = self.active_session.as_ref()?;
+        let key = CacheKey::new(session.nonce, step as u8);
+        self.signatures_by_nonce_and_type.get(&key).cloned()
+    }
+
+    /// Returns (step, is_signed) for current flow. Empty if no session.
+    pub fn get_flow_status(&self) -> Vec<(Step, bool)> {
+        let session = match &self.active_session {
+            Some(s) => s,
+            None => return vec![],
+        };
+        session
+            .flow
+            .sequence()
+            .iter()
+            .map(|&st| (st, self.has_signature(st)))
+            .collect()
+    }
+
+    /// Optional convenience: current nonce (None if no session)
+    pub fn get_active_nonce(&self) -> Option<u64> {
+        self.active_session.as_ref().map(|s| s.nonce)
     }
 }

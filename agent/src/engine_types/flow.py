@@ -1,7 +1,7 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class Flow(Enum):
-    RebalancerToAave = auto()
-    AaveToRebalancer = auto()
-    AaveToAave       = auto()
+    RebalancerToAave = "RebalancerToAave"
+    AaveToRebalancer = "AaveToRebalancer"
+    AaveToAave       = "AaveToAave"

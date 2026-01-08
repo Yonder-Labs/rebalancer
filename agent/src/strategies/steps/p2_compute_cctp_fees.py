@@ -1,11 +1,12 @@
 from near_omni_client.adapters.cctp.fee_service import FeeService
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 BUFFER = 1.05  # 5% buffer
 
 class ComputeCctpFees(Step):
-    NAME = "ComputeCctpFees"
+    NAME = StepName.ComputeCctpFees
 
     async def run(self, ctx: StrategyContext):
         domain = int(ctx.to_network_id.domain)

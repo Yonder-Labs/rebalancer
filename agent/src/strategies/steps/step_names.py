@@ -1,0 +1,26 @@
+from enum import Enum
+
+
+class StepName(Enum):
+    ApproveAaveUSDCBeforeSupplyIfRequired = "ApproveAaveUSDCBeforeSupplyIfRequired"
+    ApproveBeforeCctpBurnIfRequired = "ApproveBeforeCctpBurnIfRequired"
+    ApproveVaultToSpendAgentUSDCIfRequired = "ApproveVaultToSpendAgentUSDCIfRequired"
+    GetUSDCBalanceBeforeRebalance = "GetUSDCBalanceBeforeRebalance"
+    StartRebalance = "StartRebalance"
+    WithdrawFromRebalancerAfterAssertion = "WithdrawFromRebalancerAfterAssertion"
+    WithdrawFromRebalancer = "WithdrawFromRebalancer"
+    CctpBurnAfterAssertion = "CctpBurnAfterAssertion"
+    CctpBurn = "CctpBurn"
+    ComputeCctpFees = "ComputeCctpFees"
+    WaitAttestation = "WaitAttestation"
+    CctpMintAfterAssertion = "CctpMintAfterAssertion"
+    CctpMint = "CctpMint"
+    GetATokenBalanceBeforeSupply = "GetATokenBalanceBeforeSupply"
+    SupplyAaveAfterAssertion = "SupplyAaveAfterAssertion"
+    SupplyAave = "SupplyAave"
+    CompleteRebalance = "CompleteRebalance"
+    WithdrawFromAaveAfterAssertion = "WithdrawFromAaveAfterAssertion"
+    WithdrawFromAave = "WithdrawFromAave"
+    DepositIntoRebalancerAfterAssertion = "DepositIntoRebalancerAfterAssertion"
+    DepositIntoRebalancer = "DepositIntoRebalancer"
+    GetUSDCBalanceBeforeDepositToRebalancer = "GetUSDCBalanceBeforeDepositToRebalancer"
