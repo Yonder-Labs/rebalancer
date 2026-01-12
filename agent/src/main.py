@@ -13,7 +13,7 @@ async def main():
     # Build engine context
     context = await build_context(config)
     print("Remote configs for all chains:", context.remote_configs)
-
+    return
     agent_evm_address = context.agent_address
     vault_address = context.vault_address
 
