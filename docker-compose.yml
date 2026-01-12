@@ -1,0 +1,22 @@
+services:
+  agent:
+    image: rebalancy/aave-rebalancer:main
+    platform: linux/amd64
+    container_name: rebalancer
+    volumes:
+      - /var/run/tappd.sock:/var/run/tappd.sock
+    environment:
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY}
+      - NEAR_NETWORK="near-testnet"
+      - NEAR_CONTRACT_ACCOUNT="rebalancer-abcdefghijklmno-81.testnet"
+      - ONE_TIME_SIGNER_PRIVATE_KEY=${ONE_TIME_SIGNER_PRIVATE_KEY}
+      - ONE_TIME_SIGNER_ACCOUNT_ID="rebalancer-11.testnet"
+      - MAX_BRIDGE_FEE="990000"
+      - MIN_BRIDGE_FINALITY_THRESHOLD="1000"
+      - 'OVERRIDE_INTEREST_RATES={"11155420": 5.2 }'
+      - CALLBACK_GAS_TGAS=10
+      - KDF_PATH="ethereum-1"
+      - USE_STATIC_SIGNER=false
+      - MASTER_FUNDER_ACCOUNT_ID="rebalancer-11.testnet"
+      - MASTER_FUNDER_DRIP_SIZE=0.3
+      - DSTACK_SIMULATOR_ENDPOINT=/tmp/tappd.sock
