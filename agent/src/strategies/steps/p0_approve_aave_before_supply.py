@@ -17,7 +17,7 @@ class ApproveAaveUSDCBeforeSupplyIfRequired(Step):
             print("Approving USDC for Aave supply...")
             payload = await ctx.rebalancer_contract.build_and_sign_aave_approve_supply_tx(
                 to_chain_id=ctx.to_chain_id,
-                amount=amount,
+                amount=ctx.max_allowance,
                 spender=spender,
                 to=ctx.usdc_token_address_on_destination_chain
             )

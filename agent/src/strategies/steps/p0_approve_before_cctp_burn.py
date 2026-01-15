@@ -18,7 +18,7 @@ class ApproveBeforeCctpBurnIfRequired(Step):
             print("Approving USDC for CCTP burn...")
             payload = await ctx.rebalancer_contract.build_and_sign_cctp_approve_burn_tx(
                 source_chain=ctx.from_chain_id,
-                amount=amount,
+                amount=ctx.max_allowance,
                 spender=spender,
                 to=usdc_address
             )
