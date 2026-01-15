@@ -16,7 +16,6 @@ class StepName(Enum):
     WaitAttestation = "WaitAttestation"
     CctpMintAfterAssertion = "CctpMintAfterAssertion"
     CctpMint = "CctpMint"
-    GetATokenBalanceBeforeSupply = "GetATokenBalanceBeforeSupply"
     SupplyAaveAfterAssertion = "SupplyAaveAfterAssertion"
     SupplyAave = "SupplyAave"
     CompleteRebalance = "CompleteRebalance"

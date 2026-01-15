@@ -14,10 +14,6 @@ class SupplyAave(Step):
     
     CAN_BE_RESTARTED = True
     
-    REQUIRED_STEPS: list[StepName] = [
-        StepName.GetATokenBalanceBeforeSupply
-    ]
-
     async def run(self, ctx: StrategyContext) -> None:
         asset = ctx.usdc_token_address_on_destination_chain
         on_behalf = ctx.agent_address

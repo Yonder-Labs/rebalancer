@@ -10,7 +10,7 @@ class SupplyAaveAfterAssertion(Step):
         Assert.atoken_agent_balance(
             ctx.web3_destination, 
             ctx.a_token_address_on_destination_chain,
-            ctx.a_token_balance_before_supply + ctx.amount
+            ctx.a_usdc_agent_balance_before_rebalance_in_dest_chain + ctx.amount
         )
 
         print("✅ AToken balance assertion after Aave supply passed successfully.")

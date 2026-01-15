@@ -75,6 +75,4 @@ class StrategyContext:
         self.burn_tx_hash: Optional[str] = None
         self.attestation: Optional[Message] = None
         
-        self.a_token_balance_before_supply: Optional[int] = None # TODO: Remove duplicated variable
-
         self.usdc_agent_balance_before_deposit_to_rebalancer: Optional[int] = None # TODO: Remove duplicated variable
