@@ -13,7 +13,7 @@ class StartRebalance(_RebalancerBase):
                                usdc_agent_balance_before_in_dest_chain: int,
                                a_usdc_agent_balance_before_in_source_chain: int,
                                a_usdc_agent_balance_before_in_dest_chain: int) -> int:        
-        print(f"🚀 Starting rebalance... FLOW={flow.name}, source_chain={source_chain}, destination_chain={destination_chain}, expected_amount={expected_amount}, usdc_agent_balance_before={usdc_agent_balance_before}")
+        print(f"🚀 Starting rebalance... FLOW={flow.name}, source_chain={source_chain}, destination_chain={destination_chain}, expected_amount={expected_amount}, usdc_agent_balance_before_in_source_chain={usdc_agent_balance_before_in_source_chain}, usdc_agent_balance_before_in_dest_chain={usdc_agent_balance_before_in_dest_chain}, a_usdc_agent_balance_before_in_source_chain={a_usdc_agent_balance_before_in_source_chain}, a_usdc_agent_balance_before_in_dest_chain={a_usdc_agent_balance_before_in_dest_chain}")
         args = {
             "flow": flow.name,
             "source_chain": source_chain,

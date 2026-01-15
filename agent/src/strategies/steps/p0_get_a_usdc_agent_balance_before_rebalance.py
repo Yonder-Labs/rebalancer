@@ -24,21 +24,21 @@ class GetAUSDCBalanceBeforeRebalance(Step):
         
         ctx.a_token_address_on_destination_chain = LendingPool.get_atoken_address(ctx.web3_destination, ctx.aave_lending_pool_address_on_destination_chain, ctx.usdc_token_address_on_destination_chain)
 
-        if not ctx.a_token_address_on_destination_chain:
-            raise ValueError("Failed to get AToken address on destination chain.")
+        if ctx.a_token_address_on_destination_chain is None:
+            raise ValueError("a_token_address_on_destination_chain is not set in context.")
         
         ctx.a_token_address_on_source_chain = LendingPool.get_atoken_address(ctx.web3_source, ctx.aave_lending_pool_address_on_source_chain, ctx.usdc_token_address_on_source_chain)
 
-        if not ctx.a_token_address_on_source_chain:
-            raise ValueError("Failed to get AToken address on source chain.")
+        if ctx.a_token_address_on_source_chain is None:
+            raise ValueError("a_token_address_on_source_chain is not set in context.")
       
         ctx.a_usdc_agent_balance_before_in_source_chain = BalanceHelper.get_atoken_agent_balance(ctx.web3_source, ctx.a_token_address_on_source_chain)
 
-        if not ctx.a_usdc_agent_balance_before_in_source_chain:
-            raise ValueError("AUSDC agent balance before rebalance is not set in context.")
+        if ctx.a_usdc_agent_balance_before_in_source_chain is None:
+            raise ValueError("a_usdc_agent_balance_before_in_source_chain is not set in context.")
         
         ctx.a_usdc_agent_balance_before_in_dest_chain = BalanceHelper.get_atoken_agent_balance(ctx.web3_destination, ctx.a_token_address_on_destination_chain)
 
-        if not ctx.a_usdc_agent_balance_before_in_dest_chain:
-            raise ValueError("AUSDC agent balance before rebalance is not set in context.")
+        if ctx.a_usdc_agent_balance_before_in_dest_chain is None:
+            raise ValueError("a_usdc_agent_balance_before_in_dest_chain is not set in context.")
         

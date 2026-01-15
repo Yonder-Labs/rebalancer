@@ -23,11 +23,11 @@ class GetUSDCBalanceBeforeRebalance(Step):
         
         ctx.usdc_agent_balance_before_in_source_chain = BalanceHelper.get_usdc_agent_balance(ctx.web3_source, ctx.usdc_token_address_on_source_chain)
         
-        if not ctx.usdc_agent_balance_before_in_source_chain:
+        if ctx.usdc_agent_balance_before_in_source_chain is None:
             raise ValueError("USDC agent balance before rebalance in source chain is not set in context.")
         
         ctx.usdc_agent_balance_before_in_dest_chain = BalanceHelper.get_usdc_agent_balance(ctx.web3_destination, ctx.usdc_token_address_on_destination_chain)
         
-        if not ctx.usdc_agent_balance_before_in_dest_chain:
+        if ctx.usdc_agent_balance_before_in_dest_chain is None:
             raise ValueError("USDC agent balance before rebalance in dest chain is not set in context.")
         
