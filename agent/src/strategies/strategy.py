@@ -22,18 +22,40 @@ class Strategy:
         self.agent_address = agent_address
         self.max_allowance = max_allowance
 
-    async def execute(self, *, from_chain_id: int, to_chain_id: int, amount: int, flow: Flow, restart_from: str | None = None, usdc_agent_balance_before_rebalance: Optional[int] = None):
+    async def execute(self, *, 
+            from_chain_id: int, 
+            to_chain_id: int, 
+            amount: int, 
+            flow: Flow, 
+            restart_from: str | None = None, 
+            usdc_agent_balance_before_in_source_chain: Optional[int] = None,
+            usdc_agent_balance_before_in_dest_chain: Optional[int] = None,
+            a_usdc_agent_balance_before_in_source_chain: Optional[int] = None,
+            a_usdc_agent_balance_before_in_dest_chain: Optional[int] = None
+        ):
         ctx = self._make_context(
             from_chain_id=from_chain_id,
             to_chain_id=to_chain_id,
             amount=amount,
             flow=flow,
             restart_from=restart_from,
-            usdc_agent_balance_before_rebalance=usdc_agent_balance_before_rebalance
+            usdc_agent_balance_before_in_source_chain=usdc_agent_balance_before_in_source_chain,
+            usdc_agent_balance_before_in_dest_chain=usdc_agent_balance_before_in_dest_chain,
+            a_usdc_agent_balance_before_in_source_chain=a_usdc_agent_balance_before_in_source_chain,
+            a_usdc_agent_balance_before_in_dest_chain=a_usdc_agent_balance_before_in_dest_chain
         )
         await self._run_phases(ctx, restart_from)
 
-    def _make_context(self, *, from_chain_id: int, to_chain_id: int, flow: Flow, amount: int, restart_from: Optional[str] = None, usdc_agent_balance_before_rebalance: Optional[int] = None) -> StrategyContext:
+    def _make_context(self, *, from_chain_id: int, 
+                    to_chain_id: int, 
+                    flow: Flow, 
+                    amount: int, 
+                    restart_from: Optional[str] = None, 
+                    usdc_agent_balance_before_in_source_chain: Optional[int] = None,
+                    usdc_agent_balance_before_in_dest_chain: Optional[int] = None,
+                    a_usdc_agent_balance_before_in_source_chain: Optional[int] = None,
+                    a_usdc_agent_balance_before_in_dest_chain: Optional[int] = None
+        ) -> StrategyContext:
         print(f"🟩 Flow {self.NAME} | from={from_chain_id} to={to_chain_id} amount={amount}")
         return StrategyContext(
             from_chain_id=from_chain_id,
@@ -49,7 +71,10 @@ class Strategy:
             max_allowance=self.max_allowance,
             restart_from=restart_from,
             is_restart=restart_from is not None,
-            usdc_agent_balance_before_rebalance=usdc_agent_balance_before_rebalance
+            usdc_agent_balance_before_in_source_chain=usdc_agent_balance_before_in_source_chain,
+            usdc_agent_balance_before_in_dest_chain=usdc_agent_balance_before_in_dest_chain,
+            a_usdc_agent_balance_before_in_source_chain=a_usdc_agent_balance_before_in_source_chain,
+            a_usdc_agent_balance_before_in_dest_chain=a_usdc_agent_balance_before_in_dest_chain
         )
 
     async def _run_phases(self, ctx: StrategyContext, restart_from: Optional[str] = None):

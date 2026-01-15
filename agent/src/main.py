@@ -52,7 +52,11 @@ async def main():
         from_chain_id = activity_log["source_chain"]
         to_chain_id = activity_log["destination_chain"]
         amount = activity_log["amount"]
-        usdc_agent_balance_before_rebalance = activity_log["usdc_agent_balance_before"]
+      
+        usdc_agent_balance_before_in_source_chain = activity_log["usdc_agent_balance_before_in_source_chain"]
+        usdc_agent_balance_before_in_dest_chain = activity_log["usdc_agent_balance_before_in_dest_chain"]
+        a_usdc_agent_balance_before_in_source_chain = activity_log["a_usdc_agent_balance_before_in_source_chain"]
+        a_usdc_agent_balance_before_in_dest_chain = activity_log["a_usdc_agent_balance_before_in_dest_chain"]
         
         # if there is an existing session but the previous step is None, we set the restart_from to pending_step
         if restart_from is None:
@@ -60,7 +64,16 @@ async def main():
 
         print(f"Resuming from flow: {flow}, from_chain_id: {from_chain_id}, to_chain_id: {to_chain_id}, amount: {amount}, restart_from: {restart_from}")
         
-        await StrategyManager.get_strategy(flow).execute(from_chain_id=from_chain_id, to_chain_id=to_chain_id, amount=amount, flow=flow, restart_from=restart_from, usdc_agent_balance_before_rebalance=usdc_agent_balance_before_rebalance)
+        await StrategyManager.get_strategy(flow).execute(from_chain_id=from_chain_id, 
+            to_chain_id=to_chain_id, 
+            amount=amount,
+            flow=flow,
+            restart_from=restart_from, 
+            usdc_agent_balance_before_in_source_chain=usdc_agent_balance_before_in_source_chain,
+            usdc_agent_balance_before_in_dest_chain=usdc_agent_balance_before_in_dest_chain,
+            a_usdc_agent_balance_before_in_source_chain=a_usdc_agent_balance_before_in_source_chain,
+            a_usdc_agent_balance_before_in_dest_chain=a_usdc_agent_balance_before_in_dest_chain
+        )
 
         print("✅ Rebalance operations computed successfully.")
 
