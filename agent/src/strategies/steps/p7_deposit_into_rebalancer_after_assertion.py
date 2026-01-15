@@ -7,5 +7,6 @@ class DepositIntoRebalancerAfterAssertion(Step):
 
     async def run(self, ctx: StrategyContext):
         print("Depositing into rebalancer after assertion")
-        # TODO: Implement logic to deposit to rebalancer after assertion
-        pass
+        raise ValueError("Testing 1,2,3...")
+
+        # TODO: I should assert that the balance after deposit is what I had before - deposited amount
