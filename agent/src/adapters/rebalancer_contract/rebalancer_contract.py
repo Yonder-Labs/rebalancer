@@ -64,8 +64,10 @@ class RebalancerContract(RebalancerContractViews, RebalancerApprovals,Rebalancer
                print(f"Sending transaction to NEAR network... (attempt {attempt})")
                result = await self.near_client.send_raw_transaction(signed_tx_base64)
                print("✅ Transaction successfully sent.")
+               print("🚨 Transaction Result:", result)
                return result
             except JsonRpcError as e:
+               print(f"❌ JsonRpcError on attempt {attempt}: {e}")
                if "TIMEOUT_ERROR" in str(e):
                   if attempt < max_retries:
                         print(f"⚠️  Timeout error on attempt {attempt}. Retrying in {delay:.1f}s...")
@@ -76,6 +78,7 @@ class RebalancerContract(RebalancerContractViews, RebalancerApprovals,Rebalancer
                         print("❌ Transaction failed after maximum retries due to TIMEOUT_ERROR.")
                raise
             except Exception as e:
+               print(f"❌ Exception on attempt {attempt}: {e}")
                # Catch unexpected errors (network, aiohttp, etc.)
                if attempt < max_retries:
                   print(f"⚠️  Unexpected error on attempt {attempt}: {e}. Retrying in {delay:.1f}s...")
