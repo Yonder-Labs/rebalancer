@@ -72,3 +72,12 @@ send_usdc_to_agent_address_in_arbitrum_sepolia:
 send_usdc_to_agent_address_in_optimism_sepolia:
     echo "Sending USDC to agent address..."
     cd contract-evm && just send_usdc_to_agent_address_in_optimism_sepolia
+
+# global
+setup-dev:
+    echo "Setting up development environment..."
+    echo "Setting up NEAR contracts..."
+    just build-contract
+    echo "Setting up EVM contracts..."
+    just setup-evm-contracts
+    just compile-evm-contracts
