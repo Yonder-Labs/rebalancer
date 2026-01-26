@@ -5,6 +5,7 @@ from helpers import Assert, BalanceHelper,CrossChainATokenBalanceHelper
 from optimizer import get_extra_data_for_optimization, optimize_chain_allocation_with_direction
 from engine import build_context, StrategyManager, execute_all_rebalance_operations,compute_rebalance_operations, get_allocations
 from adapters import Vault
+from tee import get_tee_info
 
 async def main():
     # Load configuration from environment variables
@@ -15,6 +16,26 @@ async def main():
     print("Remote configs for all chains:", context.remote_configs)
 
     config.summary()
+
+    is_worker_registered = await context.rebalancer_contract.is_worker_registered(context.near_wallet.account_id)
+    print(f"Worker registered: {is_worker_registered}")
+
+    if not is_worker_registered:
+        print("Worker not registered. Registering now...")
+        tee_info = await get_tee_info(context.agent_account)
+        quote_hex = tee_info["quote_hex"]
+        collateral = config["worker_collateral"]
+        checksum = tee_info["checksum"]
+        tcb_info = tee_info["tcb_info"]
+        
+        await context.rebalancer_contract.register_worker(
+            quote_hex=quote_hex,
+            collateral=collateral,
+            checksum=checksum,
+            tcb_info=tcb_info
+        )
+        print("Worker registration completed.")
+
     agent_evm_address = context.agent_address
     vault_address = context.vault_address
 
