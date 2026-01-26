@@ -42,6 +42,10 @@ impl Contract {
             .expect("Worker not registered")
     }
 
+    pub fn get_worker_info(&self, account_id: AccountId) -> Option<Worker> {
+        self.worker_by_account_id.get(&account_id).cloned()
+    }
+
     pub fn get_latest_logs(&self, count: u64) -> Vec<ActivityLog> {
         let mut logs = Vec::new();
         let current_nonce = self.logs_nonce;
