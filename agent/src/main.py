@@ -22,11 +22,21 @@ async def main():
 
     if not is_worker_registered:
         print("Worker not registered. Registering now...")
-        tee_info = await get_tee_info(context.agent_account)
+        
+        tee_info = await get_tee_info(context.near_wallet.account_id)
+
+        if tee_info.get("success") is False:
+            raise RuntimeError(f"get_tee_info failed: {tee_info.get('error')}")
+
         quote_hex = tee_info["quote_hex"]
-        collateral = config["worker_collateral"]
+        collateral = tee_info["collateral"]
         checksum = tee_info["checksum"]
         tcb_info = tee_info["tcb_info"]
+
+        print(f"Registering worker with TEE info - Quote Hex: {quote_hex}")
+        print(f"Collateral: {collateral}")
+        print(f"Checksum: {checksum}")
+        print(f"TCB Info: {tcb_info}")
         
         await context.rebalancer_contract.register_worker(
             quote_hex=quote_hex,

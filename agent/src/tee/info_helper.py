@@ -4,17 +4,15 @@ from typing import Any, Dict
 
 import httpx
 from dstack_sdk import AsyncTappdClient
-from tee import KeyPairGenerator
-
 
 PROOF_UPLOAD_URL = "https://proof.t16z.com/api/upload"
 
 
-async def get_tee_info(agent_account: KeyPairGenerator) -> Dict[str, Any]:
+async def get_tee_info(account_id: str) -> Dict[str, Any]:
     """
     Fetch TEE attestation info:
       - TCB info from tappd
-      - TDX quote for report_data=agent_account.account_id (raw)
+      - TDX quote for report_data=account_id (raw)
       - Upload quote to proof service to get checksum + collateral
 
     Returns on success:
@@ -25,29 +23,30 @@ async def get_tee_info(agent_account: KeyPairGenerator) -> Dict[str, Any]:
         "tcb_info": str     # minified JSON string
       }
 
-    Returns on failure (keeps your current pattern):
+    Returns on failure:
       { "success": False, "error": str }
     """
-    print(f"✅ Fetching TEE info for account: {agent_account.account_id}")
+    print(f"✅ Fetching TEE info for account: {account_id}")
 
     tappd = AsyncTappdClient()
 
     try:
-        # 1) TCB info
-        tcb_info_dict = await tappd.get_info()
-        if not isinstance(tcb_info_dict, dict) or "tcb_info" not in tcb_info_dict:
-            raise ValueError(f"Unexpected get_info() response: {tcb_info_dict!r}")
+        # 1) TCB info (InfoResponse[TcbInfoV03x])
+        info_resp = await tappd.info()
+        print(f"TCB Info response: {info_resp}")
 
-        parsed_tcb_info = json.loads(tcb_info_dict["tcb_info"])
-        # Minified JSON string (stable, no whitespace)
-        tcb_info = json.dumps(parsed_tcb_info, ensure_ascii=False, separators=(",", ":"))
+        # FIX: use parsed tcb_info model directly
+        tcb_info = json.dumps(
+            info_resp.tcb_info.model_dump(),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
 
         print("✅ TCB Info retrieved successfully.")
-        print(f"TCB Info: {tcb_info}")
 
         # 2) Quote
         quote_response = await tappd.tdx_quote(
-            report_data=agent_account.account_id,
+            report_data=account_id,
             hash_algorithm="raw",
         )
 
@@ -59,10 +58,7 @@ async def get_tee_info(agent_account: KeyPairGenerator) -> Dict[str, Any]:
             quote_hex = quote_hex[2:]
 
         # 3) Upload quote to proof service
-        files = {
-            # field name = 'hex' (as your existing code)
-            "hex": (None, quote_hex, "text/plain"),
-        }
+        files = {"hex": (None, quote_hex, "text/plain")}
 
         timeout = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=10.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -77,13 +73,18 @@ async def get_tee_info(agent_account: KeyPairGenerator) -> Dict[str, Any]:
         if not isinstance(res_data, dict):
             raise ValueError(f"Unexpected proof response JSON: {res_data!r}")
 
+        print(f"Proof service response: {res_data}")
         checksum = res_data.get("checksum")
         quote_collateral = res_data.get("quote_collateral")
 
         if not isinstance(checksum, str) or not checksum:
             raise ValueError(f"Missing/invalid checksum in proof response: {res_data!r}")
 
-        collateral = json.dumps(quote_collateral, ensure_ascii=False, separators=(",", ":"))
+        collateral = json.dumps(
+            quote_collateral,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
 
         return {
             "quote_hex": quote_hex,
@@ -97,7 +98,6 @@ async def get_tee_info(agent_account: KeyPairGenerator) -> Dict[str, Any]:
         print(f"[ERROR] Full error details: {traceback.format_exc()}")
         return {"success": False, "error": str(e)}
     except Exception as e:
-        # Catch-all, keeps your current behavior
         print(f"[ERROR] Unexpected failure fetching TEE info: {e}")
         print(f"[ERROR] Full error details: {traceback.format_exc()}")
         return {"success": False, "error": str(e)}
