@@ -110,7 +110,6 @@ The project is a monorepo with the main components:
 - [Design philosophy](./docs/DESIGN.md)
 - [Flows](./docs/FLOWS.md)
 - [Deployments](./docs/DEPLOYMENTS.md)
-- [Security](./docs/SECURITY.md)
 
 ## 🪪 License
 
