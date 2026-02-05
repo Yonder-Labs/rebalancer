@@ -106,7 +106,7 @@ The project is a monorepo with the main components:
 ## 📄 Documentation
 
 - [Development Guide](./docs/DEVELOPMENT.md)
-- [Architecture Deep Dive](./docs/ARCHITECTURE.md)
+- [Architecture](./docs/ARCHITECTURE.md)
 - [Design philosophy](./docs/DESIGN.md)
 - [Flows](./docs/FLOWS.md)
 - [Deployments](./docs/DEPLOYMENTS.md)
