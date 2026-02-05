@@ -35,6 +35,24 @@ MNEMONIC_TESTNET="<Your Testnet Mnemonic Here>"
 SENDER_TESTNET="<Your Testnet Sender Address Here>"
 ```
 
+Environment variable reference (from `.env.sample`):
+
+- global
+  - `ALCHEMY_API_KEY` - RPC access for EVM chains
+- agent
+  - `NEAR_NETWORK` - `near-testnet` or `near-mainnet`
+  - `NEAR_CONTRACT_ACCOUNT` - Set by `scripts/2-deploy.sh`
+  - `MAX_BRIDGE_FEE`, `MIN_BRIDGE_FINALITY_THRESHOLD`, `CALLBACK_GAS_TGAS`
+  - `OVERRIDE_INTEREST_RATES` - Optional map for local overrides
+  - `KDF_PATH` - Key derivation path used by the agent
+  - `USE_STATIC_SIGNER` / `MASTER_FUNDER_*` - Signer configuration
+  - `DSTACK_SIMULATOR_ENDPOINT`, `TAPPD_SIMULATOR_ENDPOINT` - TEE simulator sockets
+  - `RUN_INTERVAL_SECONDS` - Agent loop interval
+- contract-evm
+  - `MNEMONIC_*`, `SENDER_*` - Deployers per network
+  - `ETHERSCAN_API_KEY` - Optional verification tooling
+  - `AGENT_ADDRESS` - Auto-updated by `scripts/2-deploy.sh`
+
 ## Getting Started
 
 ```bash
@@ -50,6 +68,15 @@ $ ./scripts/2-deploy.sh
 
 $ just run_agent
 ```
+
+Deployment flow (`scripts/2-deploy.sh`):
+
+1) Create a new NEAR account.
+2) Derive the agent EVM address.
+3) Save deployment metadata in `deployments/`.
+4) Update `.env` with `AGENT_ADDRESS` and `NEAR_CONTRACT_ACCOUNT`.
+5) Deploy EVM contracts and seed the agent.
+6) Deploy the NEAR contract with init args.
 
 ## Compilation
 
@@ -77,6 +104,8 @@ just create-account first-account.testnet
 
 Useful automation scripts:
 
+- `scripts/1-setup.sh` - Install deps and build all components.
+- `scripts/0-common.sh` - Shared helpers (e.g., `update_env_var`).
 - `scripts/2-deploy.sh` - Create a NEAR account, derive agent address, deploy EVM + NEAR contracts, update `.env`.
 - `scripts/3-run-all.sh` - Run the agent and an override run.
 - `scripts/4-register-codehash.sh` - Approve a new NEAR contract codehash.
