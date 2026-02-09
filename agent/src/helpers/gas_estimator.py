@@ -21,7 +21,6 @@ class GasEstimator:
         Estimate gas limit for a transaction by simulating it.
         Adds a safety buffer (default 20%).
         """
-        print(f"data (hex): {data.hex()}")
         web3 = self.evm_factory_provider.get_provider(network=network)
         if not web3:
             raise ValueError("Web3 provider is not initialized.")

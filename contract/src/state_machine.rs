@@ -84,18 +84,21 @@ impl Flow {
                 PayloadType::CCTPBurn,
                 PayloadType::CCTPMint,
                 PayloadType::AaveSupply,
+                PayloadType::CompleteRebalance,
             ],
             Flow::RebalancerToAave => &[
                 PayloadType::RebalancerWithdrawToAllocate,
                 PayloadType::CCTPBurn,
                 PayloadType::CCTPMint,
                 PayloadType::AaveSupply,
+                PayloadType::CompleteRebalance,
             ],
             Flow::AaveToRebalancer => &[
                 PayloadType::AaveWithdraw,
                 PayloadType::CCTPBurn,
                 PayloadType::CCTPMint,
                 PayloadType::RebalancerDeposit,
+                PayloadType::CompleteRebalance,
             ],
         }
     }

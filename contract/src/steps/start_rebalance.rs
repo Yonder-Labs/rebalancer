@@ -9,6 +9,10 @@ impl Contract {
         source_chain: ChainId,
         destination_chain: ChainId,
         amount: u128,
+        usdc_agent_balance_before_in_source_chain: u128,
+        usdc_agent_balance_before_in_dest_chain: u128,
+        a_usdc_agent_balance_before_in_source_chain: u128,
+        a_usdc_agent_balance_before_in_dest_chain: u128,
     ) -> u64 {
         self.assert_no_active_session();
         self.assert_agent_is_calling();
@@ -27,6 +31,10 @@ impl Contract {
                 transactions: vec![],
                 timestamp: env::block_timestamp_ms(),
                 nonce,
+                usdc_agent_balance_before_in_source_chain,
+                usdc_agent_balance_before_in_dest_chain,
+                a_usdc_agent_balance_before_in_source_chain,
+                a_usdc_agent_balance_before_in_dest_chain,
                 amount,
             },
         );
@@ -55,9 +63,22 @@ mod maintests {
         let source_chain = DEFAULT_SOURCE_CHAIN;
         let destination_chain = DEFAULT_DESTINATION_CHAIN;
         let amount: u128 = 1_000_000_000;
+        let usdc_agent_balance_before_in_source_chain: u128 = 5_000_000_000;
+        let usdc_agent_balance_before_in_dest_chain: u128 = 5_000_000_000;
 
-        let current_nonce =
-            contract.start_rebalance(flow.clone(), source_chain, destination_chain, amount);
+        let a_usdc_agent_balance_before_in_source_chain: u128 = 5_000_000_000;
+        let a_usdc_agent_balance_before_in_dest_chain: u128 = 5_000_000_000;
+
+        let current_nonce = contract.start_rebalance(
+            flow.clone(),
+            source_chain,
+            destination_chain,
+            amount,
+            usdc_agent_balance_before_in_source_chain,
+            usdc_agent_balance_before_in_dest_chain,
+            a_usdc_agent_balance_before_in_source_chain,
+            a_usdc_agent_balance_before_in_dest_chain,
+        );
 
         assert_eq!(current_nonce, 0);
         assert!(contract.logs_nonce == 1);
@@ -79,5 +100,21 @@ mod maintests {
         assert_eq!(log.timestamp, env::block_timestamp_ms());
         assert_eq!(log.nonce, 0);
         assert_eq!(log.amount, amount);
+        assert_eq!(
+            log.usdc_agent_balance_before_in_source_chain,
+            usdc_agent_balance_before_in_source_chain
+        );
+        assert_eq!(
+            log.usdc_agent_balance_before_in_dest_chain,
+            usdc_agent_balance_before_in_dest_chain
+        );
+        assert_eq!(
+            log.a_usdc_agent_balance_before_in_source_chain,
+            a_usdc_agent_balance_before_in_source_chain
+        );
+        assert_eq!(
+            log.a_usdc_agent_balance_before_in_dest_chain,
+            a_usdc_agent_balance_before_in_dest_chain
+        );
     }
 }

@@ -1,4 +1,3 @@
-import pytest
 from rebalancer import compute_rebalance_operations
 
 def test_no_rebalance_needed():

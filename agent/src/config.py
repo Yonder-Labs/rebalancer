@@ -32,6 +32,11 @@ class Config:
         one_time_signer_account_id: str,
         override_interest_rates: dict[int, float],
         kdf_path: str,
+        use_static_signer: bool = False,
+        master_funder_signer_private_key: str = None,
+        master_funder_drip_size: float = None,
+        master_funder_signer_account_id: str = None,
+        interval_seconds: int = 3600,
     ):
         self.contract_id = contract_id
         self.near_network = near_network
@@ -47,7 +52,11 @@ class Config:
         self.callback_gas_tgas = callback_gas_tgas
         self.tx_tgas = tx_tgas
         self.kdf_path = kdf_path
-
+        self.use_static_signer = use_static_signer
+        self.master_funder_signer_private_key = master_funder_signer_private_key
+        self.master_funder_drip_size = master_funder_drip_size
+        self.master_funder_signer_account_id = master_funder_signer_account_id
+        self.interval_seconds = interval_seconds
         self._validate()
 
     @classmethod
@@ -64,11 +73,25 @@ class Config:
         alchemy_api_key = os.getenv("ALCHEMY_API_KEY", "your_alchemy_api_key_here")
         max_bridge_fee = int(os.getenv("MAX_BRIDGE_FEE", "990000"))  # 0.99 USDC (6 decimals)
         min_bridge_finality_threshold = int(os.getenv("MIN_BRIDGE_FINALITY_THRESHOLD", "1000"))
-        one_time_signer_private_key = os.getenv("ONE_TIME_SIGNER_PRIVATE_KEY", "your_private_key_here")
-        one_time_signer_account_id = os.getenv("ONE_TIME_SIGNER_ACCOUNT_ID", "your_account_id_here")
+        one_time_signer_private_key = os.getenv("ONE_TIME_SIGNER_PRIVATE_KEY")
+        one_time_signer_account_id = os.getenv("ONE_TIME_SIGNER_ACCOUNT_ID")
         callback_gas_tgas = int(os.getenv("CALLBACK_GAS_TGAS", "10"))  # Default to 10 TGas
         tx_tgas = int(os.getenv("TX_TGAS", "300"))  # Default to 300 TGas
         kdf_path = os.getenv("KDF_PATH", "ethereum-1")
+        use_static_signer = os.getenv("USE_STATIC_SIGNER", "false").lower() == "true"
+        master_funder_signer_private_key = os.getenv("MASTER_FUNDER_PRIVATE_KEY")
+        master_funder_signer_account_id = os.getenv("MASTER_FUNDER_ACCOUNT_ID")
+        master_funder_drip_size = float(os.getenv("MASTER_FUNDER_DRIP_SIZE", "0.5"))  # amount of NEAR to top up the one-time signer with
+        interval_seconds = int(os.getenv("RUN_INTERVAL_SECONDS", "3600"))  # Default to 1 hour
+
+        if use_static_signer and one_time_signer_private_key is None:
+            sys.exit("❌ USE_STATIC_SIGNER is true but ONE_TIME_SIGNER_PRIVATE_KEY is not set.")
+
+        if not use_static_signer and master_funder_signer_private_key is None:
+            sys.exit("❌ USE_STATIC_SIGNER is false but MASTER_FUNDER_PRIVATE_KEY is not set.")
+
+        if not use_static_signer and master_funder_signer_account_id is None:
+            sys.exit("❌ USE_STATIC_SIGNER is false but MASTER_FUNDER_ACCOUNT_ID is not set.")
 
         # Parse OVERRIDE_INTEREST_RATES as JSON dict
         override_rates = os.getenv("OVERRIDE_INTEREST_RATES", "{}")
@@ -93,6 +116,11 @@ class Config:
             callback_gas_tgas=callback_gas_tgas,
             tx_tgas=tx_tgas,
             kdf_path=kdf_path,
+            use_static_signer=use_static_signer,
+            master_funder_signer_private_key=master_funder_signer_private_key,
+            master_funder_signer_account_id=master_funder_signer_account_id,
+            master_funder_drip_size=master_funder_drip_size,
+            interval_seconds=interval_seconds,
         )
 
     def _validate(self):
@@ -124,4 +152,7 @@ class Config:
         print(f"Callback Gas (TGas): {self.callback_gas_tgas}")
         print(f"Transaction Gas (TGas): {self.tx_tgas}")
         print(f"KDF Path: {self.kdf_path}")
+        print(f"Use Static Signer: {'Yes' if os.getenv('USE_STATIC_SIGNER', 'false').lower() == 'true' else 'No'}")
+        print(f"Master Funder Signer Account ID: {self.master_funder_signer_account_id}")
+        print(f"Master Funder Drip Size: {self.master_funder_drip_size}")
         print("-----------------------------------------------------")

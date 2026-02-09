@@ -31,7 +31,7 @@ impl Contract {
                 };
                 let signed_rlp = ethereum_tx.build_with_signature(&signature_omni);
 
-                signed_rlp // TODO: Cache signature hashes
+                signed_rlp
             }
             Err(e) => {
                 env::log_str(&format!("Callback failed: {:?}", e));

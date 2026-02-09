@@ -5,10 +5,11 @@ import base64
 import json
 
 from web3 import Web3
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from near_omni_client.networks import Network
 from near_omni_client.chain_signatures.utils import get_evm_address
 from near_omni_client.chain_signatures.kdf import Kdf
+
 
 def parse_chain_config(response: Any) -> dict:
     """
@@ -203,6 +204,125 @@ def parse_supported_chains(response: Any) -> list[int]:
     except Exception as e:
         raise ValueError(f"Failed to parse supported chains: {e}")
 
+def parse_activity_log(response: Any) -> Dict:
+    """
+    Parse get_activity_log response into a Python dict.
+
+    Rust return:
+      ActivityLog
+
+    JSON example:
+      {
+        activity_type: str,
+        source_chain: int,
+        destination_chain: int,
+        timestamp: int,
+        nonce: int,
+        amount: "u128-as-string",
+        usdc_agent_balance_before_in_source_chain: "u128-as-string",
+        usdc_agent_balance_before_in_dest_chain: "u128-as-string",
+        a_usdc_agent_balance_before_in_source_chain: "u128-as-string",
+        a_usdc_agent_balance_before_in_dest_chain: "u128-as-string",
+        transactions: List[List[int]]
+      }
+    """
+    if not hasattr(response, "result") or not isinstance(response.result, list):
+        raise ValueError("Invalid response: missing .result as list[int]")
+
+    try:
+        raw = bytes(response.result).decode("utf-8")
+        parsed = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f"Failed to decode activity log: {e}")
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Invalid activity log format")
+
+    return {
+        "activity_type": parsed["activity_type"],
+        "source_chain": int(parsed["source_chain"]),
+        "destination_chain": int(parsed["destination_chain"]),
+        "timestamp": int(parsed["timestamp"]),
+        "nonce": int(parsed["nonce"]),
+        "usdc_agent_balance_before_in_source_chain": int(parsed["usdc_agent_balance_before_in_source_chain"]),  # u128 string → int
+        "usdc_agent_balance_before_in_dest_chain": int(parsed["usdc_agent_balance_before_in_dest_chain"]),  # u128 string → int
+        "a_usdc_agent_balance_before_in_source_chain": int(parsed["a_usdc_agent_balance_before_in_source_chain"]),  # u128 string → int
+        "a_usdc_agent_balance_before_in_dest_chain": int(parsed["a_usdc_agent_balance_before_in_dest_chain"]),  # u128 string → int
+        "amount": int(parsed["amount"]),  # u128 string → int
+        "transactions": [
+            bytes(tx) for tx in parsed.get("transactions", [])
+        ],
+    }
+
+def parse_worker_info(response: Any) -> Optional[Dict[str, str]]:
+    """
+    Parse `get_worker_info` response into a Python dict (or None).
+
+    Rust return:
+      Option<Worker>
+
+    JSON examples:
+      null
+      {
+        "checksum": "str",
+        "codehash": "str"
+      }
+    """
+    # NEAR view calls typically return bytes as list[int] under `response.result`.
+    if not hasattr(response, "result") or not isinstance(response.result, list):
+        raise ValueError("Invalid response format: missing `result` as list[int]")
+
+    try:
+        raw = bytes(response.result).decode("utf-8")
+        parsed = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f"Failed to decode worker info: {e}")
+
+    # `Option<T>` maps to `null` when None.
+    if parsed is None:
+        return None
+
+    if not isinstance(parsed, dict):
+        raise ValueError("Invalid worker info format: expected dict or null")
+
+    # Validate required fields.
+    if "checksum" not in parsed or "codehash" not in parsed:
+        raise ValueError("Invalid worker info: missing required fields")
+
+    if not isinstance(parsed["checksum"], str) or not isinstance(parsed["codehash"], str):
+        raise ValueError("Invalid worker info: fields must be strings")
+
+    return {
+        "checksum": parsed["checksum"],
+        "codehash": parsed["codehash"],
+    }
+
+
+def parse_bool(response: Any) -> bool:
+    """
+    Parse `is_worker_registered` response into a Python boolean.
+
+    Rust return:
+      bool
+
+    JSON examples:
+      true
+      false
+    """
+    # NEAR view calls typically return bytes as list[int] under `response.result`.
+    if not hasattr(response, "result") or not isinstance(response.result, list):
+        raise ValueError("Invalid response format: missing `result` as list[int]")
+
+    try:
+        raw = bytes(response.result).decode("utf-8")
+        parsed = json.loads(raw)
+    except Exception as e:
+        raise ValueError(f"Failed to decode boolean result: {e}")
+
+    if not isinstance(parsed, bool):
+        raise ValueError(f"Invalid boolean format: expected bool, got {type(parsed)}")
+
+    return parsed
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

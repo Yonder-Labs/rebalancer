@@ -29,6 +29,7 @@ pub enum PayloadType {
     RebalancerUpdateCrossChainBalance = 5,
     RebalancerDeposit = 6,
     RebalancerSignCrossChainBalance = 7,
+    CompleteRebalance = 8,
 }
 
 impl From<u8> for PayloadType {
@@ -42,6 +43,7 @@ impl From<u8> for PayloadType {
             5 => PayloadType::RebalancerUpdateCrossChainBalance,
             6 => PayloadType::RebalancerDeposit,
             7 => PayloadType::RebalancerSignCrossChainBalance,
+            8 => PayloadType::CompleteRebalance,
             _ => panic!("Unknown PayloadType: {}", value),
         }
     }

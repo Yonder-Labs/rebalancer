@@ -1,12 +1,44 @@
 from helpers import broadcast
+from engine_types import TxType
+
 from ..strategy_context import StrategyContext
 from .step import Step
+from .step_names import StepName
 
 class CctpBurn(Step):
-    NAME = "CctpBurn"
+    NAME = StepName.CctpBurn
+
+    PAYLOAD_TYPE: TxType = TxType.CCTPBurn
+
+    CAN_BE_RESTARTED = True
+    
+    REQUIRED_STEPS: list[StepName] = [
+        StepName.ComputeCctpFees
+    ]
 
     async def run(self, ctx: StrategyContext):
         burn_token = ctx.usdc_token_address_on_source_chain
+
+        if ctx.is_restart:
+            payload = await ctx.rebalancer_contract.get_signed_payload(self.PAYLOAD_TYPE)
+
+            if payload:
+                print("Found existing signed payload for CctpBurn.")
+                signed_rlp = payload
+                tx_hash = ctx.web3_source.keccak(signed_rlp)
+
+                # Check if the transaction is already mined
+                try:
+                    ctx.web3_source.eth.get_transaction(tx_hash)
+                    ctx.burn_tx_hash = f"0x{tx_hash.hex()}"
+                    return
+                except Exception:
+                    # If not found, broadcast the signed payload
+                    broadcast(ctx.web3_source, signed_rlp)
+                    ctx.burn_tx_hash = f"0x{tx_hash.hex()}"
+                    return
+
+        print("No existing signed payload for CctpBurn found")
 
         payload = await ctx.rebalancer_contract.build_and_sign_cctp_burn_tx(
             source_chain=ctx.from_chain_id,
@@ -19,6 +51,6 @@ class CctpBurn(Step):
 
         tx_hash = broadcast(ctx.web3_source, payload)
 
-        print(f"Burn transaction broadcasted successfully!")
+        print("✅ CctpBurn transaction broadcasted successfully!")
 
         ctx.burn_tx_hash = f"0x{tx_hash}"

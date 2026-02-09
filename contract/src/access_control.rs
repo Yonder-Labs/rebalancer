@@ -8,9 +8,8 @@ impl Contract {
     }
 
     fn require_worker_has_valid_codehash(&self) {
-        // let worker = self.get_worker(env::predecessor_account_id());
-        // require!(self.approved_codehashes.contains(&worker.codehash));
-        // TODO: Uncomment above after testing
+        let worker = self.get_worker(env::predecessor_account_id());
+        require!(self.approved_codehashes.contains(&worker.codehash));
     }
 
     pub(crate) fn require_owner(&self) {
