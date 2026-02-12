@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: shade-agent-client
+Version: 0.1.0
+Summary: A Shade Agent for NEAR
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: dotenv>=0.9.9
+Requires-Dist: dstack-sdk>=0.5.3
+Requires-Dist: matplotlib>=3.10.3
+Requires-Dist: near-omni-client>=0.1.12
+Requires-Dist: numpy>=2.3.1
+Requires-Dist: pandas>=2.3.1
+Requires-Dist: requests>=2.32.4
+Requires-Dist: scipy>=1.16.0
+
+# Shade Agent Python Program
+
+This is the Shade Agent Python program that is responsible for controling the Rebalancing process.
